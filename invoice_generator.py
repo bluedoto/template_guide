@@ -13,8 +13,17 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 st.set_page_config(
     page_title="Invoice Generator",
     page_icon="📄",
-    layout="wide",
+    layout="wide"
 )
+
+hide_streamlit_style = """
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # --- Custom CSS for Clean Layout & Solid Header Bar ---
 st.markdown(
