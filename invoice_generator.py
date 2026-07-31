@@ -47,7 +47,6 @@ st.markdown(
         text-align: center;
         margin-bottom: 30px;
     }
-    /* Unified Table Header Bar accounting for delete button column width/flex */
     .invoice-table-header {
         background-color: #1a202c;
         color: white;
@@ -106,7 +105,7 @@ with center_app_col:
 
         with top_right:
             st.markdown("<h1 style='text-align: right; color: #1a202c; letter-spacing: 2px; margin: 0;'>INVOICE</h1>", unsafe_allow_html=True)
-            invoice_number = st.text_input("Invoice #", "2", label_visibility="collapsed")
+            invoice_number = st.text_input("Invoice #", "Invoice number", label_visibility="collapsed")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -136,11 +135,8 @@ with center_app_col:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # --- Perfect Column Proportions including Delete Button Ratio ---
-        # Ratio definition: [Item, Quantity, Rate, Amount, DeleteButton] -> [3.5, 1.0, 1.0, 1.0, 0.4]
         col_widths = [3.5, 1.0, 1.0, 1.0, 0.4]
 
-        # --- Single Unified Solid Dark Header Bar perfectly matching the 5 columns ---
         st.markdown("""
             <div class="invoice-table-header">
                 <div style="flex: 3.5;">Item</div>
@@ -199,6 +195,9 @@ with center_app_col:
                     <div style="display: flex; justify-content: space-between; padding: 4px 0;">
                         <span>Tax ({tax_rate}%)</span><span>${tax_amount:,.2f}</span>
                     </div>
+                    <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                        <span>Shipping Fee</span><span>${shipping_fee:,.2f}</span>
+                    </div>
                     <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; font-weight: bold; color: #1a202c; border-top: 1px solid #cbd5e0; margin-top: 5px;">
                         <span>Total</span><span>${total_amount:,.2f}</span>
                     </div>
@@ -216,13 +215,6 @@ with center_app_col:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Action Buttons right below the card
-        st.markdown("<br>", unsafe_allow_html=True)
-        btn_c1, btn_c2 = st.columns(2)
-        with btn_c1:
-            st.button("💾 Save & Send", use_container_width=True, type="primary")
-
-        # --- PDF Generation Function with Retina Logo Upscaling ---
         def generate_pdf():
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
@@ -302,6 +294,7 @@ with center_app_col:
             totals_data = [
                 ["Subtotal:", f"${subtotal:,.2f}"],
                 [f"Tax ({tax_rate}%):", f"${tax_amount:,.2f}"],
+                ["Shipping Fee:", f"${shipping_fee:,.2f}"],
                 ["Total:", f"${total_amount:,.2f}"],
                 ["Amount Paid:", f"${amount_paid:,.2f}"],
                 ["Balance Due:", f"${balance_due:,.2f}"]
@@ -322,13 +315,17 @@ with center_app_col:
             buffer.seek(0)
             return buffer.getvalue()
 
-        pdf_data = generate_pdf()
+    pdf_data = generate_pdf()
 
-        with btn_c2:
-            st.download_button(
-                label="⬇ Download PDF",
-                data=pdf_data,
-                file_name=f"invoice_{invoice_number}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
+    # --- Centered Small Download Button ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    col_left, col_center, col_right = st.columns([1, 1.2, 1])
+    with col_center:
+        st.download_button(
+            label="⬇ Download PDF",
+            data=pdf_data,
+            file_name=f"invoice_{invoice_number}.pdf",
+            mime="application/pdf",
+            use_container_width=True,
+            type="primary"
+        )
