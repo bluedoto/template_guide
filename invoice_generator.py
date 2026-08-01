@@ -140,7 +140,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Centered Layout Columns Optimized for Single-Page View ---
-_, center_app_col, _ = st.columns([1.5, 3.0, 1.5])
+_, center_app_col, _ = st.columns([1.2, 3.6, 1.2])
 
 # --- CENTER INVOICE APP CONTAINER ---
 with center_app_col:
