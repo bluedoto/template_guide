@@ -121,11 +121,11 @@ st.markdown(
 # --- Initialize Session State ---
 if "invoice_items" not in st.session_state:
     st.session_state.invoice_items = [
-        {"description": "", "qty": None, "rate": None}
+        {"description": "", "qty": 1, "rate": None}
     ]
 
 def add_item():
-    st.session_state.invoice_items.append({"description": "", "qty": None, "rate": None})
+    st.session_state.invoice_items.append({"description": "", "qty": 1, "rate": None})
 
 def remove_item(index):
     if len(st.session_state.invoice_items) > 1:
@@ -210,11 +210,11 @@ with center_app_col:
             with row_cols[0]:
                 item["description"] = st.text_input(f"Desc {i}", item["description"], placeholder="Description...", label_visibility="collapsed", key=f"desc_{i}")
             with row_cols[1]:
-                item["qty"] = st.number_input(f"Qty {i}", value=item["qty"], placeholder="1", label_visibility="collapsed", key=f"qty_{i}")
+                item["qty"] = st.number_input(f"Qty {i}", value=item["qty"] if item["qty"] is not None else 1, placeholder="1", label_visibility="collapsed", key=f"qty_{i}")
             with row_cols[2]:
                 item["rate"] = st.number_input(f"Rate {i}", value=item["rate"], placeholder="0.00", label_visibility="collapsed", key=f"rate_{i}")
             with row_cols[3]:
-                q_val = item["qty"] if item["qty"] is not None else 0
+                q_val = item["qty"] if item["qty"] is not None else 1
                 r_val = item["rate"] if item["rate"] is not None else 0.0
                 line_total = q_val * r_val
                 subtotal += line_total
@@ -352,11 +352,11 @@ with center_app_col:
 
             table_data = [["Description", "Qty", "Unit Price", "Amount"]]
             for item in st.session_state.invoice_items:
-                q_val = item["qty"] if item["qty"] is not None else 0
+                q_val = item["qty"] if item["qty"] is not None else 1
                 r_val = item["rate"] if item["rate"] is not None else 0.0
                 line_total = q_val * r_val
                 desc_text = item["description"] if item["description"] else "Description of item/service..."
-                q_text = str(item["qty"]) if item["qty"] is not None else "0"
+                q_text = str(q_val)
                 table_data.append([desc_text, q_text, f"${r_val:,.2f}", f"${line_total:,.2f}"])
 
             item_table = Table(table_data, colWidths=[3.5 * inch, 1.0 * inch, 1.0 * inch, 1.0 * inch])
