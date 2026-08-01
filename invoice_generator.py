@@ -25,14 +25,30 @@ div[data-testid="stToolbar"] {visibility: hidden; height: 0%; position: fixed;}
 div[data-testid="stDecoration"] {visibility: hidden; height: 0%; position: fixed;}
 div[data-testid="stStatusWidget"] {visibility: hidden; height: 0%; position: fixed;}
 
-/* Hide the default bulky Streamlit file uploader container box */
-[data-testid="stFileUploader"] section {
-    padding: 0px;
-    background-color: transparent;
-    border: none;
+/* Mask and blend the outer file uploader wrapper container into the app background */
+[data-testid="stFileUploader"] {
+    background-color: transparent !important;
+    padding: 0px !important;
 }
-[data-testid="stFileUploader"] section div {
-    display: none;
+
+/* Make the drop zone box taller, match background, and add padding */
+[data-testid="stFileUploader"] section {
+    background-color: #ffffff !important;
+    border: 2px dashed #cbd5e0 !important;
+    border-radius: 6px;
+    padding: 40px 20px !important;
+}
+
+[data-testid="stFileUploader"] section:hover {
+    border-color: #4a5568 !important;
+}
+
+/* Style the browse button */
+[data-testid="stFileUploader"] button {
+    background-color: #1a202c !important;
+    color: white !important;
+    border-radius: 4px;
+    font-weight: 500;
 }
 </style>
 """
@@ -109,14 +125,9 @@ with center_app_col:
 
         top_left, top_right = st.columns([1, 1])
         with top_left:
-            uploaded_logo = st.file_uploader("Add Your Logo", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
-            if not uploaded_logo:
-                st.markdown("""
-                    <div style="border: 2px dashed #cbd5e0; border-radius: 6px; padding: 85px 10px; text-align: center; color: #a0aec0; background: #fafbfc; font-size: 16px; font-weight: 600;">
-                        + Add Your Logo
-                    </div>
-                """, unsafe_allow_html=True)
-            else:
+            st.markdown("<p class='section-label'>Browse file to drop logo</p>", unsafe_allow_html=True)
+            uploaded_logo = st.file_uploader("Browse file to drop logo", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
+            if uploaded_logo:
                 st.image(uploaded_logo, width=220)
 
         with top_right:
