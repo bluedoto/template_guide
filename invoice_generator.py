@@ -25,13 +25,18 @@ div[data-testid="stToolbar"] {visibility: hidden; height: 0%; position: fixed;}
 div[data-testid="stDecoration"] {visibility: hidden; height: 0%; position: fixed;}
 div[data-testid="stStatusWidget"] {visibility: hidden; height: 0%; position: fixed;}
 
-/* Mask and blend the outer file uploader wrapper container into the app background */
+/* Completely hide the outer container label/helper box banner that Streamlit renders above file uploaders */
+[data-testid="stFileUploader"] > div:first-child {
+    display: none !important;
+}
+
+/* Match the file uploader widget background seamlessly to the invoice card */
 [data-testid="stFileUploader"] {
     background-color: transparent !important;
     padding: 0px !important;
 }
 
-/* Make the drop zone box taller, match background, and add padding */
+/* Taller drag and drop zone for easy logo uploading */
 [data-testid="stFileUploader"] section {
     background-color: #ffffff !important;
     border: 2px dashed #cbd5e0 !important;
@@ -43,7 +48,7 @@ div[data-testid="stStatusWidget"] {visibility: hidden; height: 0%; position: fix
     border-color: #4a5568 !important;
 }
 
-/* Style the browse button */
+/* Style the upload/browse button */
 [data-testid="stFileUploader"] button {
     background-color: #1a202c !important;
     color: white !important;
@@ -128,7 +133,7 @@ with center_app_col:
             st.markdown("<p class='section-label'>Browse file to drop logo</p>", unsafe_allow_html=True)
             uploaded_logo = st.file_uploader("Browse file to drop logo", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
             if uploaded_logo:
-                st.image(uploaded_logo, width=220)
+                st.image(uploaded_logo, width=140)
 
         with top_right:
             st.markdown("<h1 style='text-align: left; color: #1a202c; letter-spacing: 2px; margin: 0;'>INVOICE</h1>", unsafe_allow_html=True)
@@ -262,18 +267,18 @@ with center_app_col:
                     uploaded_logo.seek(0)
                     pil_img = PILImage.open(uploaded_logo)
 
-                    display_w = 200.0
-                    aspect = pil_img.height / float(pil_img.width)
-                    display_h = display_w * aspect
-
-                    scale_factor = 3.0
-                    high_res_w = int(display_w * scale_factor)
-                    high_res_h = int(display_h * scale_factor)
-
-                    pil_img = pil_img.resize((high_res_w, high_res_h), PILImage.Resampling.LANCZOS)
+                    # --- PROPER CLEAN LOGO SIZING FOR PDF ---
+                    max_dim = 100.0  # Professional header size cap
+                    w, h = pil_img.size
+                    if w > h:
+                        display_w = max_dim
+                        display_h = max_dim * (h / float(w))
+                    else:
+                        display_h = max_dim
+                        display_w = max_dim * (w / float(h))
 
                     img_buffer = io.BytesIO()
-                    pil_img.save(img_buffer, format="PNG", dpi=(300, 300))
+                    pil_img.save(img_buffer, format="PNG")
                     img_buffer.seek(0)
 
                     logo_element = RLImage(img_buffer, width=display_w, height=display_h)
