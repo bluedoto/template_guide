@@ -25,41 +25,42 @@ div[data-testid="stToolbar"] {visibility: hidden; height: 0%; position: fixed;}
 div[data-testid="stDecoration"] {visibility: hidden; height: 0%; position: fixed;}
 div[data-testid="stStatusWidget"] {visibility: hidden; height: 0%; position: fixed;}
 
-/* Completely hide the outer container label/helper box banner that Streamlit renders above file uploaders */
-[data-testid="stFileUploader"] > div:first-child {
+.block-container {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    max-width: 100% !important;
+}
+
+/* Hide default file uploader text instructions to make it clean & modern */
+[data-testid="stFileUploader"] section div[data-testid="stMarkdownContainer"] p {
     display: none !important;
 }
-
-/* Match the file uploader widget background seamlessly to the invoice card */
-[data-testid="stFileUploader"] {
-    background-color: transparent !important;
-    padding: 0px !important;
+[data-testid="stFileUploader"] section small {
+    display: none !important;
 }
-
-/* Taller drag and drop zone for easy logo uploading */
 [data-testid="stFileUploader"] section {
-    background-color: #ffffff !important;
-    border: 2px dashed #cbd5e0 !important;
+    background-color: #fafbfc !important;
+    border: 1.5px dashed #cbd5e0 !important;
     border-radius: 6px;
-    padding: 40px 20px !important;
+    padding: 8px !important;
+    min-height: unset !important;
 }
-
 [data-testid="stFileUploader"] section:hover {
-    border-color: #4a5568 !important;
+    border-color: #1a202c !important;
 }
-
-/* Style the upload/browse button */
 [data-testid="stFileUploader"] button {
     background-color: #1a202c !important;
     color: white !important;
     border-radius: 4px;
     font-weight: 500;
+    font-size: 11px !important;
+    padding: 2px 10px !important;
 }
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# --- Custom CSS for Clean Layout & Solid Header Bar ---
+# --- Custom CSS for Ultra-Compact Single-Page Laptop View ---
 st.markdown(
     """
     <style>
@@ -68,31 +69,49 @@ st.markdown(
     }
     .invoice-card {
         background-color: white;
-        padding: 40px;
+        padding: 12px 18px;
         border-radius: 6px;
         color: #333333;
-        box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
         border: 1px solid #e2e8f0;
     }
     .top-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 2px;
     }
     .invoice-table-header {
         background-color: #1a202c;
         color: white;
-        padding: 10px 15px;
+        padding: 5px 10px;
         border-radius: 4px 4px 0 0;
         display: flex;
         align-items: center;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 600;
     }
     .section-label {
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 600;
         color: #4a5568;
-        margin-bottom: 4px;
+        margin-bottom: 1px;
+    }
+    /* Compact input sizing */
+    div[data-testid="stTextInput"] input, div[data-testid="stDateInput"] input {
+        min-height: 28px !important;
+        height: 28px !important;
+        padding-top: 0px !important;
+        padding-bottom: 0px !important;
+        font-size: 12px !important;
+    }
+    div[data-testid="stTextArea"] textarea {
+        height: 42px !important;
+        min-height: 42px !important;
+        font-size: 12px !important;
+    }
+    div[data-testid="stNumberInput"] input {
+        min-height: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
     }
     </style>
     """,
@@ -102,11 +121,11 @@ st.markdown(
 # --- Initialize Session State ---
 if "invoice_items" not in st.session_state:
     st.session_state.invoice_items = [
-        {"description": "", "qty": 1, "rate": 0.0}
+        {"description": "", "qty": None, "rate": None}
     ]
 
 def add_item():
-    st.session_state.invoice_items.append({"description": "", "qty": 1, "rate": 0.0})
+    st.session_state.invoice_items.append({"description": "", "qty": None, "rate": None})
 
 def remove_item(index):
     if len(st.session_state.invoice_items) > 1:
@@ -115,13 +134,13 @@ def remove_item(index):
 # --- Top Website Header ---
 st.markdown("""
     <div class="top-header">
-        <h1 style="color: #1a202c; font-weight: 800; font-size: 2.3rem; margin-bottom: 5px;">Free Invoice Template</h1>
-        <p style="color: #718096; font-size: 1.05rem;">Create professional invoices with one click!</p>
+        <h1 style="color: #1a202c; font-weight: 800; font-size: 1.3rem; margin-bottom: 0px;">Free Invoice Template</h1>
+        <p style="color: #718096; font-size: 0.8rem; margin: 0;">Create professional invoices with one click!</p>
     </div>
 """, unsafe_allow_html=True)
 
-# --- Centered Layout Columns ---
-_, center_app_col, _ = st.columns([1, 3.5, 1])
+# --- Centered Layout Columns Optimized for Single-Page View ---
+_, center_app_col, _ = st.columns([1.5, 3.0, 1.5])
 
 # --- CENTER INVOICE APP CONTAINER ---
 with center_app_col:
@@ -130,22 +149,26 @@ with center_app_col:
 
         top_left, top_right = st.columns([1, 1])
         with top_left:
-            st.markdown("<p class='section-label'>Browse file to drop logo</p>", unsafe_allow_html=True)
-            uploaded_logo = st.file_uploader("Browse file to drop logo", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
+            st.markdown("<p class='section-label'>Upload Logo</p>", unsafe_allow_html=True)
+            uploaded_logo = st.file_uploader("Upload Logo", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
             if uploaded_logo:
-                st.image(uploaded_logo, width=140)
+                st.image(uploaded_logo, width=80)
 
         with top_right:
-            st.markdown("<h1 style='text-align: left; color: #1a202c; letter-spacing: 2px; margin: 0;'>INVOICE</h1>", unsafe_allow_html=True)
+            st.markdown("""
+                <div style="text-align: left;">
+                    <h1 style="color: #1a202c; letter-spacing: 2px; margin: 0; font-size: 1.6rem;">INVOICE</h1>
+                </div>
+            """, unsafe_allow_html=True)
             st.markdown("<p class='section-label' style='text-align: left;'>Invoice Number</p>", unsafe_allow_html=True)
             invoice_number = st.text_input("Invoice #", value="", placeholder="Invoice number", label_visibility="collapsed")
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-bottom: 4px;'></div>", unsafe_allow_html=True)
 
         col_from, col_dates = st.columns(2)
         with col_from:
             st.markdown("<p class='section-label'>From</p>", unsafe_allow_html=True)
-            sender_address = st.text_area("Who is this from?", value="", placeholder="Who is this from?", label_visibility="collapsed", height=95)
+            sender_address = st.text_area("Who is this from?", value="", placeholder="Who is this from?", label_visibility="collapsed")
         with col_dates:
             c_d1, c_d2 = st.columns([1, 1.2])
             with c_d1:
@@ -162,12 +185,12 @@ with center_app_col:
         col_bill, col_ship = st.columns(2)
         with col_bill:
             st.markdown("<p class='section-label'>Bill To</p>", unsafe_allow_html=True)
-            client_address = st.text_area("Bill To", value="", placeholder="Who is this to?", label_visibility="collapsed", height=85)
+            client_address = st.text_area("Bill To", value="", placeholder="Who is this to?", label_visibility="collapsed")
         with col_ship:
             st.markdown("<p class='section-label'>Ship To (optional)</p>", unsafe_allow_html=True)
-            ship_address = st.text_area("Ship To", value="", placeholder="", label_visibility="collapsed", height=85)
+            ship_address = st.text_area("Ship To", value="", placeholder="", label_visibility="collapsed")
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-bottom: 6px;'></div>", unsafe_allow_html=True)
 
         col_widths = [3.5, 1.0, 1.0, 1.0, 0.4]
 
@@ -185,15 +208,17 @@ with center_app_col:
         for i, item in enumerate(st.session_state.invoice_items):
             row_cols = st.columns(col_widths)
             with row_cols[0]:
-                item["description"] = st.text_input(f"Desc {i}", item["description"], placeholder="Description of item/service...", label_visibility="collapsed", key=f"desc_{i}")
+                item["description"] = st.text_input(f"Desc {i}", item["description"], placeholder="Description...", label_visibility="collapsed", key=f"desc_{i}")
             with row_cols[1]:
-                item["qty"] = st.number_input(f"Qty {i}", min_value=1, value=item["qty"], label_visibility="collapsed", key=f"qty_{i}")
+                item["qty"] = st.number_input(f"Qty {i}", value=item["qty"], placeholder="1", label_visibility="collapsed", key=f"qty_{i}")
             with row_cols[2]:
-                item["rate"] = st.number_input(f"Rate {i}", min_value=0.0, value=item["rate"], label_visibility="collapsed", key=f"rate_{i}")
+                item["rate"] = st.number_input(f"Rate {i}", value=item["rate"], placeholder="0.00", label_visibility="collapsed", key=f"rate_{i}")
             with row_cols[3]:
-                line_total = item["qty"] * item["rate"]
+                q_val = item["qty"] if item["qty"] is not None else 0
+                r_val = item["rate"] if item["rate"] is not None else 0.0
+                line_total = q_val * r_val
                 subtotal += line_total
-                st.markdown(f"<div style='padding-top: 10px; text-align: right; font-weight: 500; font-size: 14px;'>${line_total:,.2f}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='padding-top: 5px; text-align: right; font-weight: 500; font-size: 12px;'>${line_total:,.2f}</div>", unsafe_allow_html=True)
             with row_cols[4]:
                 if st.button("✕", key=f"del_{i}", help="Remove row"):
                     remove_item(i)
@@ -203,46 +228,50 @@ with center_app_col:
             add_item()
             st.rerun()
 
-        st.markdown("<hr style='margin: 20px 0; border: none; border-top: 1px solid #edf2f7;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='margin: 8px 0; border: none; border-top: 1px solid #edf2f7;'>", unsafe_allow_html=True)
 
         col_notes, col_totals = st.columns([1.2, 1])
 
         with col_notes:
             st.markdown("<p class='section-label'>Notes</p>", unsafe_allow_html=True)
-            notes = st.text_area("Notes", value="", placeholder="Notes - any relevant information not already covered", label_visibility="collapsed", height=70)
+            notes = st.text_area("Notes", value="", placeholder="Notes...", label_visibility="collapsed")
 
             st.markdown("<p class='section-label'>Terms</p>", unsafe_allow_html=True)
-            terms = st.text_area("Terms", value="", placeholder="Terms and conditions - late fees, payment methods, delivery schedule", label_visibility="collapsed", height=70)
+            terms = st.text_area("Terms", value="", placeholder="Terms...", label_visibility="collapsed")
 
         with col_totals:
-            tax_rate = st.number_input("Tax Rate (%)", min_value=0.0, max_value=100.0, value=0.0)
-            shipping_fee = st.number_input("Shipping Fee", min_value=0.0, value=0.0)
+            tax_rate = st.number_input("Tax Rate (%)", value=None, placeholder="0.0")
+            shipping_fee = st.number_input("Shipping Fee", value=None, placeholder="0.00")
 
-            tax_amount = subtotal * (tax_rate / 100.0)
-            total_amount = subtotal + tax_amount + shipping_fee
+            t_rate_val = tax_rate if tax_rate is not None else 0.0
+            s_fee_val = shipping_fee if shipping_fee is not None else 0.0
+
+            tax_amount = subtotal * (t_rate_val / 100.0)
+            total_amount = subtotal + tax_amount + s_fee_val
 
             st.markdown(f"""
-                <div style="font-size: 13px; color: #4a5568; margin-top: 10px;">
-                    <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <div style="font-size: 11px; color: #4a5568; margin-top: 2px;">
+                    <div style="display: flex; justify-content: space-between; padding: 2px 0;">
                         <span>Subtotal</span><span>${subtotal:,.2f}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                        <span>Tax ({tax_rate}%)</span><span>${tax_amount:,.2f}</span>
+                    <div style="display: flex; justify-content: space-between; padding: 2px 0;">
+                        <span>Tax ({t_rate_val}%)</span><span>${tax_amount:,.2f}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                        <span>Shipping Fee</span><span>${shipping_fee:,.2f}</span>
+                    <div style="display: flex; justify-content: space-between; padding: 2px 0;">
+                        <span>Shipping Fee</span><span>${s_fee_val:,.2f}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; font-weight: bold; color: #1a202c; border-top: 1px solid #cbd5e0; margin-top: 5px;">
+                    <div style="display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; font-weight: bold; color: #1a202c; border-top: 1px solid #cbd5e0; margin-top: 2px;">
                         <span>Total</span><span>${total_amount:,.2f}</span>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
 
-        amount_paid = st.number_input("Amount Paid", min_value=0.0, value=0.0)
-        balance_due = total_amount - amount_paid
+        amount_paid = st.number_input("Amount Paid", value=None, placeholder="0.00")
+        a_paid_val = amount_paid if amount_paid is not None else 0.0
+        balance_due = total_amount - a_paid_val
 
         st.markdown(f"""
-            <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 15px; font-weight: bold; color: #1a202c; border-top: 2px solid #1a202c; margin-top: 8px;">
+            <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; font-weight: bold; color: #1a202c; border-top: 2px solid #1a202c; margin-top: 3px;">
                 <span>Balance Due</span><span>${balance_due:,.2f}</span>
             </div>
         """, unsafe_allow_html=True)
@@ -261,14 +290,21 @@ with center_app_col:
                 alignment=2
             )
 
-            logo_element = Paragraph("<b>INVOICE</b>", styles['Title'])
+            left_title_style = ParagraphStyle(
+                'LeftTitle',
+                parent=styles['Normal'],
+                fontName='Helvetica-Bold',
+                fontSize=26,
+                leading=30,
+                alignment=0
+            )
+
             if uploaded_logo is not None:
                 try:
                     uploaded_logo.seek(0)
                     pil_img = PILImage.open(uploaded_logo)
 
-                    # --- PROPER CLEAN LOGO SIZING FOR PDF ---
-                    max_dim = 100.0  # Professional header size cap
+                    max_dim = 100.0
                     w, h = pil_img.size
                     if w > h:
                         display_w = max_dim
@@ -283,7 +319,9 @@ with center_app_col:
 
                     logo_element = RLImage(img_buffer, width=display_w, height=display_h)
                 except Exception:
-                    pass
+                    logo_element = Paragraph("INVOICE", left_title_style)
+            else:
+                logo_element = Paragraph("INVOICE", left_title_style)
 
             display_inv_num = invoice_number if invoice_number else "Invoice number"
             header_data = [
@@ -296,7 +334,7 @@ with center_app_col:
                 ('ALIGN', (1,0), (1,0), 'RIGHT'),
             ]))
             story.append(header_table)
-            story.append(Spacer(1, 20))
+            story.append(Spacer(1, 15))
 
             final_sender = sender_address if sender_address else "Who is this from?"
             final_client = client_address if client_address else "Who is this to?"
@@ -310,13 +348,16 @@ with center_app_col:
                 ('ALIGN', (1,0), (1,0), 'RIGHT'),
             ]))
             story.append(address_table)
-            story.append(Spacer(1, 25))
+            story.append(Spacer(1, 20))
 
             table_data = [["Description", "Qty", "Unit Price", "Amount"]]
             for item in st.session_state.invoice_items:
-                line_total = item["qty"] * item["rate"]
+                q_val = item["qty"] if item["qty"] is not None else 0
+                r_val = item["rate"] if item["rate"] is not None else 0.0
+                line_total = q_val * r_val
                 desc_text = item["description"] if item["description"] else "Description of item/service..."
-                table_data.append([desc_text, str(item["qty"]), f"${item['rate']:,.2f}", f"${line_total:,.2f}"])
+                q_text = str(item["qty"]) if item["qty"] is not None else "0"
+                table_data.append([desc_text, q_text, f"${r_val:,.2f}", f"${line_total:,.2f}"])
 
             item_table = Table(table_data, colWidths=[3.5 * inch, 1.0 * inch, 1.0 * inch, 1.0 * inch])
             item_table.setStyle(TableStyle([
@@ -331,10 +372,10 @@ with center_app_col:
 
             totals_data = [
                 ["Subtotal:", f"${subtotal:,.2f}"],
-                [f"Tax ({tax_rate}%):", f"${tax_amount:,.2f}"],
-                ["Shipping Fee:", f"${shipping_fee:,.2f}"],
+                [f"Tax ({t_rate_val}%):", f"${tax_amount:,.2f}"],
+                ["Shipping Fee:", f"${s_fee_val:,.2f}"],
                 ["Total:", f"${total_amount:,.2f}"],
-                ["Amount Paid:", f"${amount_paid:,.2f}"],
+                ["Amount Paid:", f"${a_paid_val:,.2f}"],
                 ["Balance Due:", f"${balance_due:,.2f}"]
             ]
             totals_table = Table(totals_data, colWidths=[5.5 * inch, 1.0 * inch])
@@ -345,7 +386,7 @@ with center_app_col:
                 ('LINEABOVE', (0,-1), (-1,-1), 1, colors.black),
             ]))
             story.append(totals_table)
-            story.append(Spacer(1, 25))
+            story.append(Spacer(1, 20))
 
             final_notes = notes if notes else "Notes - any relevant information not already covered"
             final_terms = terms if terms else "Terms and conditions - late fees, payment methods, delivery schedule"
@@ -358,7 +399,7 @@ with center_app_col:
     pdf_data = generate_pdf()
 
     # --- Centered Small Download Button ---
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
     col_left, col_center, col_right = st.columns([1, 1.2, 1])
     with col_center:
         st.download_button(
