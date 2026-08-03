@@ -551,7 +551,7 @@ html_template = f"""
         margin-top: 4px;
         margin-bottom: 8px;
         margin-left: 0px;
-        padding-left: 12px;
+        padding-left: 10px;
     }}
     li {{ margin-bottom: 4px; }}
 </style>
