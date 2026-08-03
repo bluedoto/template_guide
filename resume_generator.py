@@ -453,7 +453,7 @@ else:
     active_awards = awards_data
 
 
-# --- 2. HTML PREVIEW FORMATTING ---
+# --- 2. HTML PREVIEW FORMATTING (USING GOOGLE FONT 'TINOS' FOR RELIABLE ITALICS) ---
 def format_bullets(text):
     if not text:
         return ""
@@ -482,13 +482,14 @@ html_template = f"""
 <html>
 <head>
 <meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
     @page {{
         size: Letter;
         margin: 0.3in;
     }}
     body {{
-        font-family: "Times New Roman", Times, Georgia, serif !important;
+        font-family: 'Tinos', "Times New Roman", Times, Georgia, serif !important;
         font-size: 10pt;
         color: #000000;
         line-height: 1.25;
@@ -499,13 +500,13 @@ html_template = f"""
         margin-bottom: 20px;
     }}
     .name-div {{
-        font-family: "Times New Roman", Times, Georgia, serif !important;
+        font-family: 'Tinos', "Times New Roman", Times, Georgia, serif !important;
         font-size: 20pt;
         font-weight: bold;
         margin-bottom: 4px;
     }}
     .contact-div {{
-        font-family: "Times New Roman", Times, Georgia, serif !important;
+        font-family: 'Tinos', "Times New Roman", Times, Georgia, serif !important;
         font-size: 10pt;
     }}
     .section-header {{
@@ -533,6 +534,7 @@ html_template = f"""
         width: 160px;
         color: #555555;
         font-style: italic !important;
+        font-weight: normal;
         vertical-align: top;
         padding-top: 2px;
     }}
@@ -582,7 +584,7 @@ for edu in active_edu:
     html_template += f"""
     <div class="dark-blue-header">{header_str}</div>
     <div class="resume-entry" style="margin-bottom: 8px;">
-        <div class="date-col" style="font-style: italic !important;">{edu.get('date', '')}</div>
+        <div class="date-col"><em>{edu.get('date', '')}</em></div>
         <div class="content-col">{degree_display}</div>
     </div>
     """
@@ -600,15 +602,15 @@ for exp in active_exp:
     """
     for role in exp.get("roles", []):
         subgroup_str = (
-            f"<i style='display: block; margin-bottom: 5px; color: #000;'>["
-            f"{role.get('subgroup', '')}]</i>"
+            f"<em style='display: block; margin-bottom: 5px; color: #000;'>["
+            f"{role.get('subgroup', '')}]</em>"
             if role.get("subgroup")
             else ""
         )
 
         html_template += f"""
         <div class="resume-entry">
-            <div class="date-col" style="font-style: italic !important;">{role.get('date', '')}</div>
+            <div class="date-col"><em>{role.get('date', '')}</em></div>
             <div class="content-col role-block">
                 <span class="bold-text">{role.get('title', '')}</span>
                 {subgroup_str}
@@ -628,7 +630,7 @@ if include_startup and active_startup:
         html_template += f"""
         <div class="dark-blue-header">{header_str}</div>
         <div class="resume-entry" style="margin-bottom: 8px;">
-            <div class="date-col" style="font-style: italic !important;">{startup.get('date', '')}</div>
+            <div class="date-col"><em>{startup.get('date', '')}</em></div>
             <div class="content-col">
                 <span class="bold-text" style="display:inline;">{startup.get('title', '')}</span>
                 {format_bullets(startup.get('desc', ''))}
@@ -642,13 +644,13 @@ if include_awards and active_awards:
     """
     for awd in active_awards:
         inst_str = (
-            f"<i style='color: #555555;'>{awd.get('institution', '')}</i>"
+            f"<em style='color: #555555;'>{awd.get('institution', '')}</em>"
             if awd.get("institution")
             else ""
         )
         html_template += f"""
         <div class="resume-entry" style="margin-bottom: 4px;">
-            <div class="date-col" style="font-style: italic !important;">{inst_str}</div>
+            <div class="date-col">{inst_str}</div>
             <div class="content-col">{awd.get('award', '')}</div>
         </div>
         """
@@ -940,9 +942,10 @@ def generate_docx():
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
 
-# Corrected to pass the HTML string cleanly to st.iframe
-st.iframe(src=html_template, height=800)
-# Generate PDF using Weasyprint
+# Render the HTML safely in an iframe using the modern format parameter
+st.components.v1.html(html_template, height=800, scrolling=True)
+
+# Generate PDF using Weasyprint with embedded Google Font Tinos (ensures italics)
 pdf_bytes = HTML(string=html_template).write_pdf()
 
 st.header("Download Options")
