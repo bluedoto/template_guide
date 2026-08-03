@@ -3,3 +3,4 @@ reportlab
 Pillow
 pdfkit
 python-docx
+weasyprint
