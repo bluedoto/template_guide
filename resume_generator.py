@@ -941,8 +941,7 @@ def generate_docx():
 st.header("Preview")
 
 # Corrected to pass the HTML string cleanly to st.iframe
-st.iframe(src=html_template, height=800, scrolling=True)
-
+st.iframe(src=html_template, height=800)
 # Generate PDF using Weasyprint
 pdf_bytes = HTML(string=html_template).write_pdf()
 
