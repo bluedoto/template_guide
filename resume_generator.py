@@ -453,7 +453,7 @@ else:
     active_awards = awards_data
 
 
-# --- 2. HTML PREVIEW FORMATTING (USING GOOGLE FONT 'TINOS' FOR RELIABLE ITALICS) ---
+# --- 2. HTML PREVIEW FORMATTING ---
 def format_bullets(text):
     if not text:
         return ""
@@ -550,7 +550,8 @@ html_template = f"""
     .bullet-list {{
         margin-top: 4px;
         margin-bottom: 8px;
-        padding-left: 18px;
+        margin-left: 0px;
+        padding-left: 12px;
     }}
     li {{ margin-bottom: 4px; }}
 </style>
@@ -942,7 +943,7 @@ def generate_docx():
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
 
-# Render the HTML safely in an iframe using the modern format parameter
+# Render the HTML safely in an iframe using components.v1.html
 st.components.v1.html(html_template, height=800, scrolling=True)
 
 # Generate PDF using Weasyprint with embedded Google Font Tinos (ensures italics)
