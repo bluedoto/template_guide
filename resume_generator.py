@@ -5,7 +5,7 @@ import docx
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import streamlit as st
-from weasyprint import HTML  # Replaced pdfkit with Weasyprint
+from weasyprint import HTML
 
 # Set page configuration
 st.set_page_config(page_title="Big Tech Resume Builder", layout="wide")
@@ -24,13 +24,11 @@ st.markdown(
 
 # Centered Apple-backed Subtitle / Hook Header
 st.markdown(
-    "<h1 class='centered-header'>Resume Template that got 1M people into"
-    " FAANG</h1>",
+    "<h1 class='centered-header'>Resume Template that got 1M people into FAANG</h1>",
     unsafe_allow_html=True,
 )
 st.markdown(
-    "<p class='centered-header'>Good luck! This resume format is solid to get"
-    " you anywhere.</p>",
+    "<p class='centered-header'>Good luck! This resume format is solid to get you anywhere.</p>",
     unsafe_allow_html=True,
 )
 st.markdown(
@@ -639,7 +637,7 @@ if include_awards and active_awards:
         )
         html_template += f"""
         <div class="resume-entry" style="margin-bottom: 4px;">
-            <div class="date-col" style="font-style: normal;">{inst_str}</div>
+            <div class="date-col" style="font-style: italic;">{inst_str}</div>
             <div class="content-col">{awd.get('award', '')}</div>
         </div>
         """
@@ -906,7 +904,7 @@ def generate_docx():
             add_para_run(
                 p_inst,
                 awd.get("institution", ""),
-                italic=False,
+                italic=True,
                 color=docx.shared.RGBColor(85, 85, 85),
                 size_pt=10,
             )
@@ -928,35 +926,33 @@ def generate_docx():
 
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
+
+# Render HTML preview using components
 st.components.v1.html(html_template, height=800, scrolling=True)
 
-st.header("Export Options")
-st.write("")
-st.write("")
-_, col_exp_1, col_exp_2, _ = st.columns([2.3, 1, 1, 2])
+# Generate PDF using Weasyprint
+pdf_bytes = HTML(string=html_template).write_pdf()
 
-with col_exp_1:
-    if st.button("Generate PDF", type="primary"):
-        try:
-            # Generate PDF bytes using WeasyPrint
-            pdf = HTML(string=html_template).write_pdf()
-            b64_pdf = base64.b64encode(pdf).decode("utf-8")
-            href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="resume.pdf">📥 Download Resume PDF</a>'
-            st.markdown(href, unsafe_allow_html=True)
-            st.success("PDF generated successfully using WeasyPrint!")
-        except Exception as e:
-            st.error(
-                "Error generating PDF. Make sure WeasyPrint and its system"
-                f" dependencies are installed. Details: {e}"
-            )
+st.header("Download Options")
+col_d1, col_d2 = st.columns(2)
 
-with col_exp_2:
-    if st.button("Generate Word (.docx)", type="primary"):
-        try:
-            docx_bytes = generate_docx()
-            b64_docx = base64.b64encode(docx_bytes).decode("utf-8")
-            href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64_docx}" download="resume.docx">📥 Download Word Document</a>'
-            st.markdown(href, unsafe_allow_html=True)
-            st.success("Word document generated successfully!")
-        except Exception as e:
-            st.error(f"Error generating Word document: {e}")
+with col_d1:
+    st.download_button(
+        label="📥 Download PDF Resume",
+        data=pdf_bytes,
+        file_name=f"{active_name.replace(' ', '_')}_Resume.pdf",
+        mime="application/pdf",
+        use_container_width=True,
+    )
+
+with col_d2:
+    docx_bytes = generate_docx()
+    st.download_button(
+        label="📥 Download Word (.docx) Resume",
+        data=docx_bytes,
+        file_name=f"{active_name.replace(' ', '_')}_Resume.docx",
+        mime=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        use_container_width=True,
+    )
