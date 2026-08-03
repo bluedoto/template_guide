@@ -5,6 +5,7 @@ import docx
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import streamlit as st
+from streamlit.components.v1 import html as st_html
 from weasyprint import HTML
 
 # Set page configuration
@@ -487,7 +488,7 @@ html_template = f"""
         margin: 0.3in;
     }}
     body {{
-        font-family: "Times New Roman", Times, serif;
+        font-family: "Times New Roman", Times, Georgia, serif;
         font-size: 10pt;
         color: #000000;
         line-height: 1.25;
@@ -498,13 +499,13 @@ html_template = f"""
         margin-bottom: 20px;
     }}
     .name-div {{
-        font-family: "Times New Roman", Times, serif;
+        font-family: "Times New Roman", Times, Georgia, serif;
         font-size: 20pt;
         font-weight: bold;
         margin-bottom: 4px;
     }}
     .contact-div {{
-        font-family: "Times New Roman", Times, serif;
+        font-family: "Times New Roman", Times, Georgia, serif;
         font-size: 10pt;
     }}
     .section-header {{
@@ -523,8 +524,8 @@ html_template = f"""
         margin-bottom: 4px;
     }}
     .bold-name {{ font-weight: bold; }}
-    .italic-location {{ font-style: italic; color: #555555; }}
-    .italic-institution {{ font-style: italic; color: #555555; }}
+    .italic-location {{ font-style: italic !important; color: #555555; }}
+    .italic-institution {{ font-style: italic !important; color: #555555; }}
     .resume-entry {{
         display: table;
         width: 100%;
@@ -533,7 +534,7 @@ html_template = f"""
         display: table-cell;
         width: 160px;
         color: #555555;
-        font-style: italic;
+        font-style: italic !important;
         vertical-align: top;
         padding-top: 2px;
     }}
@@ -543,7 +544,7 @@ html_template = f"""
     }}
     .bold-text {{ font-weight: bold; display: block; margin-bottom: 3px; }}
     .normal-text {{ font-weight: normal; }}
-    .italic-text {{ font-style: italic; display: block; margin-bottom: 5px; }}
+    .italic-text {{ font-style: italic !important; display: block; margin-bottom: 5px; }}
     .role-block {{
         margin-bottom: 12px;
     }}
@@ -649,7 +650,7 @@ if include_awards and active_awards:
         )
         html_template += f"""
         <div class="resume-entry" style="margin-bottom: 4px;">
-            <div class="date-col" style="font-style: italic;">{inst_str}</div>
+            <div class="date-col" style="font-style: italic !important;">{inst_str}</div>
             <div class="content-col">{awd.get('award', '')}</div>
         </div>
         """
@@ -938,9 +939,6 @@ def generate_docx():
 
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
-
-# Correct module-level import method for custom component HTML rendering
-from streamlit.components.v1 import html as st_html
 
 st_html(html_template, height=800, scrolling=True)
 
