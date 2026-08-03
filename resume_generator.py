@@ -5,7 +5,6 @@ import docx
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import streamlit as st
-from streamlit.components.v1 import html as st_html
 from weasyprint import HTML
 
 # Set page configuration
@@ -470,7 +469,8 @@ def format_location_string(comp_name, location):
     if comp_name and location:
         return (
             f"<span class='bold-name'>{comp_name}</span> &middot; <span"
-            f" class='italic-location'>{location}</span>"
+            " style='font-style: italic !important; color: #555555;'"
+            f">{location}</span>"
         )
     elif comp_name:
         return f"<span class='bold-name'>{comp_name}</span>"
@@ -488,7 +488,7 @@ html_template = f"""
         margin: 0.3in;
     }}
     body {{
-        font-family: "Times New Roman", Times, Georgia, serif;
+        font-family: "Times New Roman", Times, Georgia, serif !important;
         font-size: 10pt;
         color: #000000;
         line-height: 1.25;
@@ -499,13 +499,13 @@ html_template = f"""
         margin-bottom: 20px;
     }}
     .name-div {{
-        font-family: "Times New Roman", Times, Georgia, serif;
+        font-family: "Times New Roman", Times, Georgia, serif !important;
         font-size: 20pt;
         font-weight: bold;
         margin-bottom: 4px;
     }}
     .contact-div {{
-        font-family: "Times New Roman", Times, Georgia, serif;
+        font-family: "Times New Roman", Times, Georgia, serif !important;
         font-size: 10pt;
     }}
     .section-header {{
@@ -524,8 +524,6 @@ html_template = f"""
         margin-bottom: 4px;
     }}
     .bold-name {{ font-weight: bold; }}
-    .italic-location {{ font-style: italic !important; color: #555555; }}
-    .italic-institution {{ font-style: italic !important; color: #555555; }}
     .resume-entry {{
         display: table;
         width: 100%;
@@ -544,7 +542,6 @@ html_template = f"""
     }}
     .bold-text {{ font-weight: bold; display: block; margin-bottom: 3px; }}
     .normal-text {{ font-weight: normal; }}
-    .italic-text {{ font-style: italic !important; display: block; margin-bottom: 5px; }}
     .role-block {{
         margin-bottom: 12px;
     }}
@@ -585,7 +582,7 @@ for edu in active_edu:
     html_template += f"""
     <div class="dark-blue-header">{header_str}</div>
     <div class="resume-entry" style="margin-bottom: 8px;">
-        <div class="date-col">{edu.get('date', '')}</div>
+        <div class="date-col" style="font-style: italic !important;">{edu.get('date', '')}</div>
         <div class="content-col">{degree_display}</div>
     </div>
     """
@@ -603,14 +600,15 @@ for exp in active_exp:
     """
     for role in exp.get("roles", []):
         subgroup_str = (
-            f"<span class='italic-text'>[{role.get('subgroup', '')}]</span>"
+            f"<i style='display: block; margin-bottom: 5px; color: #000;'>["
+            f"{role.get('subgroup', '')}]</i>"
             if role.get("subgroup")
             else ""
         )
 
         html_template += f"""
         <div class="resume-entry">
-            <div class="date-col">{role.get('date', '')}</div>
+            <div class="date-col" style="font-style: italic !important;">{role.get('date', '')}</div>
             <div class="content-col role-block">
                 <span class="bold-text">{role.get('title', '')}</span>
                 {subgroup_str}
@@ -630,7 +628,7 @@ if include_startup and active_startup:
         html_template += f"""
         <div class="dark-blue-header">{header_str}</div>
         <div class="resume-entry" style="margin-bottom: 8px;">
-            <div class="date-col">{startup.get('date', '')}</div>
+            <div class="date-col" style="font-style: italic !important;">{startup.get('date', '')}</div>
             <div class="content-col">
                 <span class="bold-text" style="display:inline;">{startup.get('title', '')}</span>
                 {format_bullets(startup.get('desc', ''))}
@@ -644,7 +642,7 @@ if include_awards and active_awards:
     """
     for awd in active_awards:
         inst_str = (
-            f"<span class='italic-institution'>{awd.get('institution', '')}</span>"
+            f"<i style='color: #555555;'>{awd.get('institution', '')}</i>"
             if awd.get("institution")
             else ""
         )
@@ -829,7 +827,9 @@ def generate_docx():
                 if role.get("subgroup"):
                     p_subg = cell.add_paragraph()
                     p_subg.paragraph_format.space_after = docx.shared.Pt(4)
-                    add_para_run(p_subg, f"[{role.get('subgroup')}]", italic=True)
+                    add_para_run(
+                        p_subg, f"[{role.get('subgroup')}]", italic=True
+                    )
 
                 for line in role.get("desc", "").split("\n"):
                     if line.strip():
@@ -940,7 +940,8 @@ def generate_docx():
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
 
-st_html(html_template, height=800, scrolling=True)
+# Updated to st.iframe to clear deprecation warning and force iframe styling behavior
+st.iframe(srcdoc=html_template, height=800, scrolling=True)
 
 # Generate PDF using Weasyprint
 pdf_bytes = HTML(string=html_template).write_pdf()
