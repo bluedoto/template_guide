@@ -1,3 +1,5 @@
 streamlit>=1.29.0
 reportlab
 Pillow
+pdfkit
+python-docx
