@@ -940,8 +940,8 @@ def generate_docx():
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
 
-# Updated to st.iframe to clear deprecation warning and force iframe styling behavior
-st.iframe(srcdoc=html_template, height=800, scrolling=True)
+# Corrected to pass the HTML string cleanly to st.iframe
+st.iframe(src=html_template, height=800, scrolling=True)
 
 # Generate PDF using Weasyprint
 pdf_bytes = HTML(string=html_template).write_pdf()
