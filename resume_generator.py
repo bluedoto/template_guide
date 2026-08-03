@@ -10,7 +10,7 @@ from weasyprint import HTML
 # Set page configuration
 st.set_page_config(page_title="Big Tech Resume Builder", layout="wide")
 
-# Custom CSS for styling the export buttons using Streamlit's primary button style and centering headers
+# Custom CSS for styling export buttons and centering headers
 st.markdown(
     """
     <style>
@@ -22,13 +22,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Centered Apple-backed Subtitle / Hook Header
+# Centered Subtitle / Hook Header
 st.markdown(
-    "<h1 class='centered-header'>Resume Template that got 1M people into FAANG</h1>",
+    "<h1 class='centered-header'>Resume Template that got 1M people into"
+    " FAANG</h1>",
     unsafe_allow_html=True,
 )
 st.markdown(
-    "<p class='centered-header'>Good luck! This resume format is solid to get you anywhere.</p>",
+    "<p class='centered-header'>Good luck! This resume format is solid to get"
+    " you anywhere.</p>",
     unsafe_allow_html=True,
 )
 st.markdown(
@@ -44,7 +46,9 @@ with col1:
 with col2:
     email = st.text_input("Email", "", placeholder="jane.doe@example.com")
 with col3:
-    linkedin = st.text_input("LinkedIn URL", "", placeholder="linkedin.com/in/janedoe")
+    linkedin = st.text_input(
+        "LinkedIn URL", "", placeholder="linkedin.com/in/janedoe"
+    )
 
 # --- EDUCATION SECTION (DYNAMIC) ---
 st.header("2. Education")
@@ -195,10 +199,16 @@ for i, exp in enumerate(st.session_state.exp_list):
                     st.rerun()
 
         if st.button(
-                f"➕ Add Promotion / Role Change for {exp.get('company', 'Company')}",
+                f"➕ Add Promotion / Role Change for"
+                f" {exp.get('company', 'Company')}",
                 key=f"add_role_{display_idx}",
         ):
-            exp["roles"].append({"title": "", "subgroup": "", "date": "", "desc": ""})
+            exp["roles"].append({
+                "title": "",
+                "subgroup": "",
+                "date": "",
+                "desc": "",
+            })
             st.rerun()
 
         if len(st.session_state.exp_list) > 1:
@@ -281,7 +291,8 @@ if include_startup:
             )
             if len(st.session_state.startup_list) > 1:
                 if st.button(
-                        f"Remove Startup {display_idx}", key=f"remove_startup_{display_idx}"
+                        f"Remove Startup {display_idx}",
+                        key=f"remove_startup_{display_idx}",
                 ):
                     st.session_state.startup_list.pop(i)
                     st.rerun()
@@ -326,7 +337,8 @@ if include_awards:
             )
             if len(st.session_state.awards_list) > 1:
                 if st.button(
-                        f"Remove Award Block {display_idx}", key=f"remove_award_{display_idx}"
+                        f"Remove Award Block {display_idx}",
+                        key=f"remove_award_{display_idx}",
                 ):
                     st.session_state.awards_list.pop(i)
                     st.rerun()
@@ -704,7 +716,7 @@ def generate_docx():
     p_contact.paragraph_format.space_after = docx.shared.Pt(10)
     add_para_run(p_contact, f"{active_email} | {active_linkedin}", size_pt=10)
 
-    def add_entry_row(date_text, content_callback):
+    def add_entry_row(date_text, content_callback, is_italic_date=True):
         tbl = doc.add_table(rows=1, cols=2)
         tbl.autofit = False
 
@@ -745,7 +757,7 @@ def generate_docx():
         add_para_run(
             p_date,
             date_text,
-            italic=True,
+            italic=is_italic_date,
             color=docx.shared.RGBColor(85, 85, 85),
             size_pt=10,
         )
@@ -927,8 +939,10 @@ def generate_docx():
 # --- 4. PREVIEW & EXPORT OPTIONS ---
 st.header("Preview")
 
-# Render HTML preview using components
-st.components.v1.html(html_template, height=800, scrolling=True)
+# Correct module-level import method for custom component HTML rendering
+from streamlit.components.v1 import html as st_html
+
+st_html(html_template, height=800, scrolling=True)
 
 # Generate PDF using Weasyprint
 pdf_bytes = HTML(string=html_template).write_pdf()
