@@ -10,8 +10,22 @@ from docx.oxml.ns import qn
 # Set page configuration
 st.set_page_config(page_title="Big Tech Resume Builder", layout="wide")
 
-st.title("📄 Resume Template Builder")
-st.markdown("Fill out your details below. The preview starts with the default template and updates automatically as you type. Download your resume as a **PDF** or **Word (.docx)**.")
+# Custom CSS for styling the export buttons using Streamlit's primary button style and centering headers
+st.markdown(
+    """
+    <style>
+    .centered-header {
+        text-align: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Centered Apple-backed Subtitle / Hook Header
+st.markdown("<h1 class='centered-header'>Resume Template that got 1M people into FAANG</h1>", unsafe_allow_html=True)
+st.markdown("<p class='centered-header'>Good luck! This resume format is solid to get you anywhere.</p>", unsafe_allow_html=True)
+st.markdown("<p class='centered-header'>Download as either PDF or docx to edit.</p>", unsafe_allow_html=True)
 
 # --- 1. USER INPUTS (Initialized empty for placeholders) ---
 st.header("1. Personal Information")
@@ -666,10 +680,12 @@ st.header("Preview")
 st.components.v1.html(html_template, height=800, scrolling=True)
 
 st.header("Export Options")
-col_exp_1, col_exp_2 = st.columns(2)
+st.write("")  # Adds vertical space between the header and buttons
+st.write("")
+_, col_exp_1, col_exp_2, _ = st.columns([2.3, 1, 1, 2])
 
 with col_exp_1:
-    if st.button("Generate PDF"):
+    if st.button("Generate PDF", type="primary"):
         try:
             options = {
                 'page-size': 'Letter',
@@ -689,7 +705,7 @@ with col_exp_1:
             st.error(f"Error generating PDF. Make sure wkhtmltopdf is installed. Details: {e}")
 
 with col_exp_2:
-    if st.button("Generate Word (.docx)"):
+    if st.button("Generate Word (.docx)", type="primary"):
         try:
             docx_bytes = generate_docx()
             b64_docx = base64.b64encode(docx_bytes).decode('utf-8')
